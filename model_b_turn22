@@ -1,0 +1,25 @@
+#include <iostream>
+#include <xmmintrin.h> // For SSE instructions
+
+int main() {
+    const int rows = 1000;
+    const int cols = 1000;
+    double* arr = new double[rows * cols];
+
+    for (int i = 0; i < rows; ++i) {
+        for (int j = 0; j < cols; j += 4) {
+            __m128d vals = _mm_setzero_pd(); // Initialize a vector with zeros
+            for (int k = 0; k < 4; k++) {
+                int idx = i * cols + j + k;
+                double val = static_cast<double>(i + j + k) / (static_cast<double>(rows) + static_cast<double>(cols));
+                vals = _mm_set_pd1(val); 
+                // Or you can read directly from an array and do operations
+                // _mm_storeu_pd(arr + idx, _mm_add_pd(arr + idx, vals));
+            }
+            _mm_storeu_pd(arr + i * cols + j, vals);
+        }
+    }
+
+    delete[] arr;
+    return 0;
+}
